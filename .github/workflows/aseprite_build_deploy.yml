@@ -6,9 +6,16 @@ on:
       - master # Запускает при каждом пуше в master
   workflow_dispatch: # Позволяет запускать вручную
 
+permissions:
+  contents: write
+  packages: write
+  id-token: write
+
+
 env:
   BUILD_TYPE: Release
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Убедитесь, что ваш токен называется TOKEN
+
 
 jobs:
   check-version:
