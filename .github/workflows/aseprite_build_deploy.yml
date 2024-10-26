@@ -2,10 +2,11 @@ name: Build and deploy Aseprite
 
 on:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 0 * * *' # Запускает каждый день в полночь
   push:
     branches:
-      - master
+      - master # Запускает при каждом пуше в master
+  workflow_dispatch: # Позволяет запускать вручную
 
 env:
   BUILD_TYPE: Release
@@ -56,6 +57,7 @@ jobs:
         draft: true
         prerelease: false
   
+
   build-aseprite:
     name: Build Aseprite
     needs: check-version
