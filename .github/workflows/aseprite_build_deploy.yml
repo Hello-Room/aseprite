@@ -8,7 +8,8 @@ on:
 
 permissions:
   contents: write
-  releases: write
+  packages: write
+  id-token: write
 
 env:
   BUILD_TYPE: Release
@@ -31,7 +32,6 @@ jobs:
         DOWNLOAD_URL=$(echo "${data}" | jq -r '.assets[].browser_download_url')
         VERSION_INFO=$(echo "${data}" | jq -r '.body')
 
-        echo "${LATEST_TAG}" > ${LATEST_TAG}.txt
         echo "latest_tag=${LATEST_TAG}" >> $GITHUB_ENV
         echo "download_url=${DOWNLOAD_URL}" >> $GITHUB_ENV
         echo "version_info=${VERSION_INFO}" >> $GITHUB_ENV
@@ -40,14 +40,17 @@ jobs:
       id: version_check
       uses: actions/cache@v2
       with:
-        path: ${{ steps.version_info.outputs.latest_tag }}.txt
+        path: ${{ env.latest_tag }}.txt
         key: cached_version
 
     - name: Should we start new build?
       id: should_build
-      run: echo "should_build=false" >> $GITHUB_ENV
-      if: steps.version_check.outputs.cache-hit != 'true'
-      run: echo "should_build=true" >> $GITHUB_ENV
+      run: |
+        if [ "${{ steps.version_check.outputs.cache-hit }}" != "true" ]; then
+          echo "should_build=true" >> $GITHUB_ENV
+        else
+          echo "should_build=false" >> $GITHUB_ENV
+        fi
 
     - name: Create Release
       id: create_release
@@ -69,9 +72,9 @@ jobs:
     if: env.should_build == 'true'
     runs-on: ${{ matrix.os }}
     strategy:
-       matrix:
-         os: [windows-latest]
-       fail-fast: false    
+      matrix:
+        os: [windows-latest, ubuntu-latest, macOS-latest]
+      fail-fast: false    
     steps:
       - name: (Windows) Install dependencies
         if: matrix.os == 'windows-latest'
