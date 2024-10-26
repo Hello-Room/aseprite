@@ -1,7 +1,6 @@
 name: Build and deploy Aseprite
 
 on:
-
   push:
     branches:
       - master # Запускает при каждом пуше в master
@@ -9,8 +8,8 @@ on:
 
 env:
   BUILD_TYPE: Release
-  GITHUB_TOKEN: ${{ secrets.TOKEN }}
-  
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Убедитесь, что ваш токен называется TOKEN
+
 jobs:
   check-version:
     name: Check latest Aseprite release
@@ -29,31 +28,32 @@ jobs:
         DOWNLOAD_URL=$(echo "${data}" | jq -r '.assets[].browser_download_url')
         VERSION_INFO=$(echo "${data}" | jq -r '.body')
         
-        echo "${LATEST_TAG}" > ${LATEST_TAG}.txt
-        echo "::set-output name=latest_tag::${LATEST_TAG}"
-        echo "::set-output name=download_url::${DOWNLOAD_URL}"
-        echo "::set-output name=version_info::${VERSION_INFO}"
+        echo "latest_tag=${LATEST_TAG}" >> $GITHUB_ENV
+        echo "download_url=${DOWNLOAD_URL}" >> $GITHUB_ENV
+        echo "version_info=${VERSION_INFO}" >> $GITHUB_ENV
+
     - name: Load version from cache
       id: version_check
-      uses: actions/cache@v2
+      uses: actions/cache@v3 # Используйте последнюю версию
       with:
-        path: ${{ steps.version_info.outputs.latest_tag }}.txt
+        path: ${{ env.latest_tag }}.txt
         key: cached_version
     - name: Should we start new build?
       id: should_build
       if: steps.version_check.outputs.cache-hit != 'true'
-      run: echo "::set-output name=should_build::true"
+      run: echo "should_build=true" >> $GITHUB_ENV
+
     - name: Create Release
       id: create_release
-      if: steps.should_build.outputs.should_build
-      uses: actions/create-release@v1
+      if: env.should_build == 'true'
+      uses: actions/create-release@v1.1.0 # Используйте последнюю версию
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
       with:
-        tag_name: ${{ steps.version_info.outputs.latest_tag }}
-        release_name: Release Aseprite ${{ steps.version_info.outputs.latest_tag }}
+        tag_name: ${{ env.latest_tag }}
+        release_name: Release Aseprite ${{ env.latest_tag }}
         body: |
-          ${{ steps.version_info.outputs.version_info }}
+          ${{ env.version_info }}
         draft: true
         prerelease: false
   
@@ -78,7 +78,7 @@ jobs:
         run: brew install ninja p7zip
       - name: Get Skia from cache
         id: skia-cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3 # Используйте последнюю версию
         with:
           path: skia
           key: skia-${{ matrix.os }}-cache
@@ -128,7 +128,7 @@ jobs:
       - name: Upload release
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN }} # Используйте свой токен
         with:
           upload_url: ${{ needs.check-version.outputs.upload_url }}
           asset_path: aseprite/build/bin/Aseprite-${{ needs.check-version.outputs.latest_tag }}-${{ runner.os }}.zip
