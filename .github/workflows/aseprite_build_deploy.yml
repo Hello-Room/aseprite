@@ -9,7 +9,7 @@ on:
 
 env:
   BUILD_TYPE: Release
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.TOKEN }}
   
 jobs:
   check-version:
