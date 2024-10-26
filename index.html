@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aseprite</title>
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico?">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #1e1e1e; /* Dark background */
+            color: #ffffff; /* Light text color */
+        }
+        h1, h2, h3 {
+            color: #ffffff; /* Light text for headings */
+        }
+        code {
+            background-color: #333333; /* Darker background for code */
+            color: #f8f8f2; /* Light text for code */
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        pre {
+            background-color: #333333; /* Darker background for preformatted text */
+            color: #f8f8f2; /* Light text for preformatted text */
+            padding: 10px;
+            border-radius: 3px;
+            overflow: auto; /* Adds scrolling for long code */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #444444; /* Border color for table */
+            text-align: left;
+        }
+        th {
+            background-color: #2a2a2a; /* Dark background for table header */
+        }
+        a {
+            color: #1e90ff; /* Light blue color for links */
+        }
+        a:hover {
+            text-decoration: underline; /* Underline on hover for links */
+        }
+    </style>
+</head>
+<body>
+
+    <h1>What is it</h1>
+    <p>Github Actions build config that builds Aseprite for Windows, Linux, macOS.<br>
+    By using GitHub actions there is no need for manual compilation and it does not contain malware.<br>
+    To adhere to the EULA of Aseprite, this workflow does not upload the binary in a public accessible space like artifacts.<br>
+    The release can be found within the releases as a draft (only visible for repo owner).</p>
+
+    <h2>How to use</h2>
+    <ol>
+        <li>Clone or fork this <a href="https://github.com/Hello-Room/aseprite">repo</a></li>
+        <li>Edit <code>/.github/workflows/aseprite_build_deploy.yml</code></li>
+        <li>Find and edit the <strong>os</strong> line and remove the os you don't need.
+            <pre><code>strategy:
+  matrix:
+    os: [windows-latest, ubuntu-latest, macOS-latest]
+</code></pre>
+        </li>
+        <li>Save and commit.</li>
+        <li>On every push to master and every day, the workflow will check for new Aseprite releases.</li>
+    </ol>
+
+    <h2>Technical details</h2>
+    <p>This workflow follows the instructions as described at <a href="https://github.com/aseprite/aseprite/blob/master/INSTALL.md">Aseprite repo</a></p>
+    <ol>
+        <li>Every day check if there is a new Aseprite release on GitHub (by comparing against cached version).</li>
+        <li>If newer version then create a draft Release where the build job can put the binaries.</li>
+        <li>Start building.</li>
+        <li>Get Skia from cache, if not in cache then download it.</li>
+        <li>Use CMake and Ninja to compile.</li>
+        <li>Create zip of release and upload to draft Release from step 2.</li>
+    </ol>
+
+    <h2>Build times</h2>
+    <p>Every month you have 2000 free minutes from GitHub.<br>
+    Different Operating Systems costs different amounts of minutes, see <a href="https://help.github.com/en/github/setting-up-and-managing-billing-and-payments-on-github/about-billing-for-github-actions#about-billing-for-github-actions">billing for GitHub Actions</a><br>
+    So building for all three Operating Systems will cost 130 minutes (20 * 2 + 10 * 1 + 8 * 10).<br>
+    That is why we recommend you to modify the <strong>os</strong> line to only build for the OS that you need.</p>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Operating System</th>
+                <th>Minutes</th>
+                <th>Minute multiplier</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Windows</td>
+                <td>20</td>
+                <td>2</td>
+            </tr>
+            <tr>
+                <td>Ubuntu</td>
+                <td>10</td>
+                <td>1</td>
+            </tr>
+            <tr>
+                <td>macOS</td>
+                <td>8</td>
+                <td>10</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Support Aseprite</h2>
+    <p>Keep supporting Aseprite at <a href="https://aseprite.org/#buy">aseprite.org</a></p>
+
+</body>
+</html>
