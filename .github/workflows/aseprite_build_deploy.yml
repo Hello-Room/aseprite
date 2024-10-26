@@ -1,12 +1,11 @@
 name: Build and deploy Aseprite
 
 on:
-  
+
   push:
     branches:
-      - master
-    workflow_dispatch:
-
+      - master # Запускает при каждом пуше в master
+  workflow_dispatch: # Позволяет запускать вручную
 
 env:
   BUILD_TYPE: Release
