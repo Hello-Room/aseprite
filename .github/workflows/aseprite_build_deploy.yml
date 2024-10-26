@@ -27,7 +27,7 @@ jobs:
         LATEST_TAG=$(echo "${data}" | jq -r '.tag_name')
         DOWNLOAD_URL=$(echo "${data}" | jq -r '.assets[].browser_download_url')
         VERSION_INFO=$(echo "${data}" | jq -r '.body')
-        
+
         echo "latest_tag=${LATEST_TAG}" >> $GITHUB_ENV
         echo "download_url=${DOWNLOAD_URL}" >> $GITHUB_ENV
         echo "version_info=${VERSION_INFO}" >> $GITHUB_ENV
@@ -40,8 +40,8 @@ jobs:
         key: cached_version
     - name: Should we start new build?
       id: should_build
-      if: steps.version_check.outputs.cache-hit != 'true'
       run: echo "should_build=true" >> $GITHUB_ENV
+      if: steps.version_check.outputs.cache-hit != 'true'
 
     - name: Create Release
       id: create_release
@@ -133,4 +133,3 @@ jobs:
           upload_url: ${{ needs.check-version.outputs.upload_url }}
           asset_path: aseprite/build/bin/Aseprite-${{ needs.check-version.outputs.latest_tag }}-${{ runner.os }}.zip
           asset_name: Aseprite-${{ needs.check-version.outputs.latest_tag }}-${{ runner.os }}.zip
-          asset_content_type: application/zip
